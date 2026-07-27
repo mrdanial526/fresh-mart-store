@@ -23,6 +23,8 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
+const PORT = process.env.PORT || 5000;
+
 // Only call app.listen if running locally, NOT on Vercel
 if (process.env.NODE_ENV !== 'production') {
   app.listen(PORT, () => {
@@ -30,5 +32,5 @@ if (process.env.NODE_ENV !== 'production') {
   });
 }
 
-// CRITICAL: Export the app so Vercel can handle it as a serverless function
+// CRITICAL: Export the app so Vercel's serverless function can read it
 module.exports = app;
