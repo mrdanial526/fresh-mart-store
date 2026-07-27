@@ -1,46 +1,56 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
+require("dotenv").config();
 
 const app = express();
+
 app.use(cors());
 app.use(express.json());
 
-// Cache MongoDB connection across serverless invocations
-let cachedDb = null;
-async function connectDB() {
-  if (cachedDb) return;
-  const conn = await mongoose.connect(process.env.MONGO_URI);
-  cachedDb = conn;
+// Connect MongoDB
+let cached = global.mongoose;
+
+if (!cached) {
+  cached = global.mongoose = { conn: null, promise: null };
 }
 
-// Connect to the database before handling any request
+async function connectDB() {
+  if (cached.conn) return cached.conn;
+
+  if (!cached.promise) {
+    cached.promise = mongoose.connect(process.env.MONGO_URI, {
+      bufferCommands: false,
+    });
+  }
+
+  cached.conn = await cached.promise;
+  return cached.conn;
+}
+
+// Connect before every request
 app.use(async (req, res, next) => {
   try {
     await connectDB();
     next();
   } catch (err) {
-    console.error("Database connection error:", err);
-    res.status(500).json({ error: "Database connection failed" });
+    console.error(err);
+    res.status(500).json({
+      message: "Database connection failed",
+    });
   }
 });
 
-// Import your existing backend routes from the server folder
-try {
-  const productRoutes = require('../server/routes/productRoutes');
-  const authRoutes = require('../server/routes/authRoutes');
-  const orderRoutes = require('../server/routes/orderRoutes');
-  
-  app.use('/api/products', productRoutes);
-  app.use('/api/users', authRoutes);
-  app.use('/api/orders', orderRoutes);
-} catch (err) {
-  console.log("Route loading error:", err);
-}
+// Routes
+app.use("/api/auth", require("../server/routes/authRoutes"));
+app.use("/api/products", require("../server/routes/productRoutes"));
+app.use("/api/orders", require("../server/routes/orderRoutes"));
 
-// Test endpoint
-app.get('/api', (req, res) => {
-  res.json({ message: "API is running successfully!" });
+// Test Route
+app.get("/api", (req, res) => {
+  res.json({
+    message: "API is running...",
+  });
 });
 
 module.exports = app;
