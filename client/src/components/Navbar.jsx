@@ -8,8 +8,19 @@ export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const getCartKey = () => {
+    try {
+      const currentUser = user || JSON.parse(localStorage.getItem('user') || localStorage.getItem('userInfo') || 'null');
+      const userId = currentUser ? (currentUser._id || currentUser.email || currentUser.id) : 'guest';
+      return `cart_${userId}`;
+    } catch {
+      return 'cart_guest';
+    }
+  };
+
   const updateCartCount = () => {
-    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    const cartKey = getCartKey();
+    const cart = JSON.parse(localStorage.getItem(cartKey) || '[]');
     const totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
     setCartCount(totalCount);
   };
@@ -18,29 +29,27 @@ export default function Navbar() {
     updateCartCount();
 
     window.addEventListener('cartUpdated', updateCartCount);
+    window.addEventListener('storage', updateCartCount);
 
     return () => {
       window.removeEventListener('cartUpdated', updateCartCount);
+      window.removeEventListener('storage', updateCartCount);
     };
-  }, []);
+  }, [user]);
 
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
 
+  // Define navigation links with visibility rules
   const navLinks = [
-    { name: 'Home', path: '/' },
-    { name: 'Products', path: '/products' },
-    { name: 'About', path: '/about' },
-    { name: 'Checkout', path: '/checkout' },
-    ...(user?.role === 'admin' ? [{ name: 'Admin Dashboard', path: '/admin' }] : []),
+    { name: 'Home', path: '/', public: true },
+    { name: 'Products', path: '/products', public: true },
+    { name: 'About', path: '/about', public: true },
+    { name: 'Checkout', path: '/checkout', public: false },
+    ...(user?.role === 'admin' ? [{ name: 'Admin Dashboard', path: '/admin', public: false }] : []),
   ];
-
-  // Check if current page is Login or Register
-  const isAuthPage =
-    location.pathname === '/login' ||
-    location.pathname === '/register';
 
   return (
     <nav
@@ -105,7 +114,7 @@ export default function Navbar() {
         </div>
       </Link>
 
-      {/* Navigation Links */}
+      {/* Navigation Links (Public links show always; Checkout/Admin show only when logged in) */}
       <div
         style={{
           display: 'flex',
@@ -114,9 +123,7 @@ export default function Navbar() {
         }}
       >
         {navLinks
-          .filter(
-            (link) => !(isAuthPage && link.path === '/checkout')
-          )
+          .filter((link) => link.public || user)
           .map((link) => {
             const isActive = location.pathname === link.path;
 
@@ -125,9 +132,7 @@ export default function Navbar() {
                 key={link.path}
                 to={link.path}
                 style={{
-                  color: isActive
-                    ? 'var(--accent-gold)'
-                    : 'var(--text-main)',
+                  color: isActive ? 'var(--accent-gold)' : 'var(--text-main)',
                   textDecoration: 'none',
                   fontSize: '0.95rem',
                   fontWeight: isActive ? 'bold' : 'normal',
@@ -146,9 +151,7 @@ export default function Navbar() {
                     width: '100%',
                     height: '2px',
                     backgroundColor: 'var(--accent-gold)',
-                    transform: isActive
-                      ? 'scaleX(1)'
-                      : 'scaleX(0)',
+                    transform: isActive ? 'scaleX(1)' : 'scaleX(0)',
                     transformOrigin: 'bottom left',
                     transition: 'transform 0.3s ease-in-out',
                   }}
@@ -158,26 +161,20 @@ export default function Navbar() {
           })}
       </div>
 
-      {/* Right Actions */}
-      {!isAuthPage && (
-        <div
-          style={{
-            display: 'flex',
-            gap: '1rem',
-            alignItems: 'center',
-          }}
-        >
+      {/* Right Actions (Cart button is hidden unless logged in) */}
+      <div
+        style={{
+          display: 'flex',
+          gap: '1rem',
+          alignItems: 'center',
+        }}
+      >
+        {user && (
           <button
             onClick={() => navigate('/cart')}
             style={{
-              background:
-                location.pathname === '/cart'
-                  ? 'var(--accent-gold)'
-                  : 'transparent',
-              color:
-                location.pathname === '/cart'
-                  ? 'var(--bg-primary)'
-                  : 'var(--text-main)',
+              background: location.pathname === '/cart' ? 'var(--accent-gold)' : 'transparent',
+              color: location.pathname === '/cart' ? 'var(--bg-primary)' : 'var(--text-main)',
               border: '1px solid var(--border-color)',
               padding: '0.5rem 1rem',
               borderRadius: '6px',
@@ -191,42 +188,42 @@ export default function Navbar() {
           >
             Cart ({cartCount})
           </button>
+        )}
 
-          {user ? (
-            <button
-              onClick={handleLogout}
-              style={{
-                background: 'transparent',
-                color: '#ff4d4d',
-                border: '1px solid #ff4d4d',
-                padding: '0.5rem 1rem',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontWeight: 'bold',
-                fontSize: '0.9rem',
-              }}
-            >
-              Logout
-            </button>
-          ) : (
-            <button
-              onClick={() => navigate('/login')}
-              style={{
-                background: 'var(--accent-gold)',
-                color: 'var(--bg-primary)',
-                border: 'none',
-                padding: '0.5rem 1rem',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontWeight: 'bold',
-                fontSize: '0.9rem',
-              }}
-            >
-              Login
-            </button>
-          )}
-        </div>
-      )}
+        {user ? (
+          <button
+            onClick={handleLogout}
+            style={{
+              background: 'transparent',
+              color: '#ff4d4d',
+              border: '1px solid #ff4d4d',
+              padding: '0.5rem 1rem',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontWeight: 'bold',
+              fontSize: '0.9rem',
+            }}
+          >
+            Logout
+          </button>
+        ) : (
+          <button
+            onClick={() => navigate('/login')}
+            style={{
+              background: 'var(--accent-gold)',
+              color: 'var(--bg-primary)',
+              border: 'none',
+              padding: '0.5rem 1rem',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontWeight: 'bold',
+              fontSize: '0.9rem',
+            }}
+          >
+            Login
+          </button>
+        )}
+      </div>
     </nav>
   );
 }

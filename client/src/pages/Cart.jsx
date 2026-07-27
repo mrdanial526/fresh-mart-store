@@ -1,14 +1,40 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 export default function Cart() {
   const [cartItems, setCartItems] = useState([]);
+  const { user } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const storedCart = JSON.parse(localStorage.getItem('cart') || '[]');
+  // Helper to determine the user-specific cart storage key
+  const getCartKey = () => {
+    try {
+      const currentUser = user || JSON.parse(localStorage.getItem('user') || localStorage.getItem('userInfo') || 'null');
+      const userId = currentUser ? (currentUser._id || currentUser.email || currentUser.id) : 'guest';
+      return `cart_${userId}`;
+    } catch {
+      return 'cart_guest';
+    }
+  };
+
+  const loadCart = () => {
+    const cartKey = getCartKey();
+    const storedCart = JSON.parse(localStorage.getItem(cartKey) || '[]');
     setCartItems(storedCart);
-  }, []);
+  };
+
+  useEffect(() => {
+    loadCart();
+
+    window.addEventListener('cartUpdated', loadCart);
+    window.addEventListener('storage', loadCart);
+
+    return () => {
+      window.removeEventListener('cartUpdated', loadCart);
+      window.removeEventListener('storage', loadCart);
+    };
+  }, [user]);
 
   const updateQuantity = (index, newQty) => {
     if (newQty <= 0) {
@@ -18,20 +44,20 @@ export default function Cart() {
     const updated = [...cartItems];
     updated[index].quantity = newQty;
     setCartItems(updated);
-    localStorage.setItem('cart', JSON.stringify(updated));
+    localStorage.setItem(getCartKey(), JSON.stringify(updated));
     window.dispatchEvent(new Event('cartUpdated'));
   };
 
   const removeItem = (index) => {
     const updated = cartItems.filter((_, i) => i !== index);
     setCartItems(updated);
-    localStorage.setItem('cart', JSON.stringify(updated));
+    localStorage.setItem(getCartKey(), JSON.stringify(updated));
     window.dispatchEvent(new Event('cartUpdated'));
   };
 
   const clearCart = () => {
     setCartItems([]);
-    localStorage.removeItem('cart');
+    localStorage.removeItem(getCartKey());
     window.dispatchEvent(new Event('cartUpdated'));
   };
 

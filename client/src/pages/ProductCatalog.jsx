@@ -17,6 +17,17 @@ export default function ProductCatalog() {
       .catch((err) => console.error('Error fetching products:', err));
   }, []);
 
+  // Helper to determine the user-specific cart storage key
+  const getCartKey = () => {
+    try {
+      const currentUser = user || JSON.parse(localStorage.getItem('user') || localStorage.getItem('userInfo') || 'null');
+      const userId = currentUser ? (currentUser._id || currentUser.email || currentUser.id) : 'guest';
+      return `cart_${userId}`;
+    } catch {
+      return 'cart_guest';
+    }
+  };
+
   const handleAddToCart = (product) => {
     if (cartModalProduct) return; // Prevent adding if popup is active
 
@@ -25,7 +36,8 @@ export default function ProductCatalog() {
       return;
     }
 
-    const existingCart = JSON.parse(localStorage.getItem('cart') || '[]');
+    const cartKey = getCartKey();
+    const existingCart = JSON.parse(localStorage.getItem(cartKey) || '[]');
     const existingIndex = existingCart.findIndex((item) => item._id === product._id);
 
     if (existingIndex > -1) {
@@ -34,7 +46,7 @@ export default function ProductCatalog() {
       existingCart.push({ ...product, quantity: 1 });
     }
 
-    localStorage.setItem('cart', JSON.stringify(existingCart));
+    localStorage.setItem(cartKey, JSON.stringify(existingCart));
     window.dispatchEvent(new Event('cartUpdated'));
     setCartModalProduct(product);
   };
