@@ -18,7 +18,7 @@
     },
     {
       "src": "/((?!api/).*)",
-      "destination": "/client/dist/index.html"
+      "dest": "/client/dist/index.html"
     }
   ]
 }
