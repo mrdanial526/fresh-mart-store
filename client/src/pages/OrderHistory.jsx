@@ -1,17 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import API_BASE_URL from '../apiConfig';
 
 export default function OrderHistory() {
   const [orders, setOrders] = useState([]);
   const { user } = useAuth();
 
   useEffect(() => {
-    if (user && user._id) {
-      fetch(`/api/orders/user/${user._id}`)
-        .then((res) => res.json())
-        .then((data) => setOrders(data))
-        .catch((err) => console.error('Error fetching orders:', err));
-    }
+    const fetchOrders = async () => {
+      if (user && user._id) {
+        try {
+          const res = await fetch(`${API_BASE_URL}/api/orders/user/${user._id}`);
+          const contentType = res.headers.get("content-type");
+
+          if (res.ok && contentType && contentType.includes("application/json")) {
+            const data = await res.json();
+            setOrders(data);
+          } else {
+            console.error('Server did not return JSON for order history.');
+          }
+        } catch (err) {
+          console.error('Error fetching orders:', err);
+        }
+      }
+    };
+
+    fetchOrders();
   }, [user]);
 
   return (

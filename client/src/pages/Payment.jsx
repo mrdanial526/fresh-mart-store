@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import API_BASE_URL from '../apiConfig';
 import styles from '../styles/Auth.module.css';
 
 export default function Payment() {

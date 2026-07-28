@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import API_BASE_URL from '../apiConfig';
 import styles from '../styles/Auth.module.css';
 
 export default function Register() {
@@ -21,11 +22,17 @@ export default function Register() {
     }
 
     try {
-      const res = await fetch('/api/auth/register', {
+      const res = await fetch(`${API_BASE_URL}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       });
+
+      const contentType = res.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        throw new Error('Server returned an invalid response. Check deployment routing.');
+      }
+
       const data = await res.json();
       
       // If registration fails, throw error and stay on page

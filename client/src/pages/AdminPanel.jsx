@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import API_BASE_URL from '../apiConfig';
 import styles from '../styles/Auth.module.css';
 
 export default function AdminPanel() {
@@ -12,8 +13,9 @@ export default function AdminPanel() {
   const handleCreateProduct = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem('token');
+    
     try {
-      const res = await fetch('/api/products', {
+      const res = await fetch(`${API_BASE_URL}/api/products`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -21,7 +23,18 @@ export default function AdminPanel() {
         },
         body: JSON.stringify(productData)
       });
-      if (!res.ok) throw new Error('Failed to create product');
+
+      const contentType = res.headers.get("content-type");
+
+      if (!res.ok) {
+        let errorMessage = 'Failed to create product';
+        if (contentType && contentType.includes("application/json")) {
+          const errData = await res.json();
+          errorMessage = errData.message || errorMessage;
+        }
+        throw new Error(errorMessage);
+      }
+
       setMessage('Product added successfully!');
       setProductData({ name: '', price: '', description: '', image: '' });
     } catch (err) {

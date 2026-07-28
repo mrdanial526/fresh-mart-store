@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import API_BASE_URL from '../apiConfig';
 import styles from '../styles/Auth.module.css';
 
 export default function ProductDetail() {
@@ -9,13 +10,27 @@ export default function ProductDetail() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch(`/api/products/${id}`)
-      .then((res) => res.json())
-      .then((data) => setProduct(data))
-      .catch((err) => console.error(err));
+    const fetchProduct = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/products/${id}`);
+        const contentType = res.headers.get("content-type");
+
+        if (res.ok && contentType && contentType.includes("application/json")) {
+          const data = await res.json();
+          setProduct(data);
+        } else {
+          console.error('Server did not return JSON for product detail.');
+        }
+      } catch (err) {
+        console.error('Error fetching product details:', err);
+      }
+    };
+
+    fetchProduct();
   }, [id]);
 
   const handleAddToCart = () => {
+    if (!product) return;
     const existingCart = JSON.parse(localStorage.getItem('cart') || '[]');
     const itemIndex = existingCart.findIndex((item) => item._id === product._id);
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import API_BASE_URL from '../apiConfig';
 
 export default function Checkout() {
   const [cartItems, setCartItems] = useState([]);
@@ -28,7 +29,7 @@ export default function Checkout() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handlePlaceOrder = (e) => {
+  const handlePlaceOrder = async (e) => {
     e.preventDefault();
     if (cartItems.length === 0) {
       alert('Your cart is empty!');
@@ -36,11 +37,24 @@ export default function Checkout() {
       return;
     }
 
-    // Process order logic here (e.g., API call)
-    alert('Order placed successfully!');
-    localStorage.removeItem('cart');
-    window.dispatchEvent(new Event('cartUpdated'));
-    navigate('/');
+    try {
+      // Optional: Post order to backend if you have an endpoint set up
+      /*
+      const res = await fetch(`${API_BASE_URL}/api/orders`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderItems: cartItems, shippingAddress: formData, totalPrice: grandTotal })
+      });
+      */
+
+      alert('Order placed successfully!');
+      localStorage.removeItem('cart');
+      window.dispatchEvent(new Event('cartUpdated'));
+      navigate('/payment'); // Or navigate('/') depending on your flow
+    } catch (err) {
+      console.error('Checkout error:', err);
+      alert('Failed to place order. Please try again.');
+    }
   };
 
   const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
@@ -51,7 +65,6 @@ export default function Checkout() {
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', background: 'var(--bg-primary)', color: 'var(--text-main)' }}>
       <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto', width: '100%', boxSizing: 'border-box' }}>
         
-        {/* Layout Container: Left Form, Right Order Summary */}
         <form onSubmit={handlePlaceOrder} style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: '2.5rem', alignItems: 'start' }}>
           
           {/* Left Column: Delivery Details & Review Items */}

@@ -2,7 +2,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 export default function About() {
-  // Replace this with your image path (e.g. '/my-photo.jpg' from your public folder or an external URL)
   const managerImage = '/my-photo.jpg'; 
   const storeImage = 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1200&q=80';
 
@@ -20,7 +19,7 @@ export default function About() {
               We make everyday shopping feel elevated, personal, and delightfully effortless.
             </h1>
             <p style={{ color: 'var(--text-muted)', fontSize: '1.05rem', lineHeight: '1.6', marginBottom: '2rem' }}>
-              NexaMart is a modern lifestyle shop built around beautiful essentials, thoughtful service, and a calm online experience. We believe great purchases should feel inspiring from the first glance to the moment they arrive at your door.
+              Sovereign Store is a modern lifestyle shop built around beautiful essentials, thoughtful service, and a calm online experience. We believe great purchases should feel inspiring from the first glance to the moment they arrive at your door.
             </p>
             <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
               <Link to="/" style={{ padding: '0.75rem 1.5rem', background: 'var(--accent-gold)', color: 'var(--bg-primary)', borderRadius: '6px', fontWeight: 'bold', textDecoration: 'none' }}>
@@ -93,11 +92,11 @@ export default function About() {
         <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '16px', padding: '3rem', display: 'grid', gridTemplateColumns: '350px 1fr', gap: '3rem', alignItems: 'center' }}>
           <div>
             <img 
-  src={managerImage} 
-  alt="Manager" 
-  onError={(e) => { e.target.src = '/pic.jpeg'; }}
-  style={{ width: '100%', height: '400px', objectFit: 'cover', borderRadius: '12px', border: '1px solid var(--border-color)' }} 
-/>
+              src={managerImage} 
+              alt="Muhammad Danial" 
+              onError={(e) => { e.target.src = '/pic.jpeg'; }}
+              style={{ width: '100%', height: '400px', objectFit: 'cover', borderRadius: '12px', border: '1px solid var(--border-color)' }} 
+            />
           </div>
           <div>
             <span style={{ fontSize: '0.8rem', fontWeight: '700', letterSpacing: '2px', color: 'var(--accent-gold)', textTransform: 'uppercase', display: 'block', marginBottom: '1rem' }}>
@@ -124,7 +123,7 @@ export default function About() {
       <footer style={{ background: 'var(--bg-card)', borderTop: '1px solid var(--border-color)', padding: '2rem', color: 'var(--text-muted)', marginTop: '2rem' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
-            <h4 style={{ color: 'var(--accent-gold)', margin: '0 0 0.5rem 0' }}>E-Commerce Store</h4>
+            <h4 style={{ color: 'var(--accent-gold)', margin: '0 0 0.5rem 0' }}>Sovereign Store</h4>
             <p style={{ margin: 0, fontSize: '0.9rem' }}>Your premier destination for curated collections and luxury goods.</p>
           </div>
           <div style={{ display: 'flex', gap: '1.5rem', fontSize: '0.9rem' }}>
@@ -134,7 +133,7 @@ export default function About() {
           </div>
         </div>
         <div style={{ maxWidth: '1200px', margin: '1.5rem auto 0 auto', textAlign: 'center', borderTop: '1px solid var(--border-color)', paddingTop: '1rem', fontSize: '0.85rem' }}>
-          &copy; {new Date().getFullYear()} E-Commerce Store. All rights reserved.
+          &copy; {new Date().getFullYear()} Sovereign Store. All rights reserved.
         </div>
       </footer>
     </div>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import API_BASE_URL from '../apiConfig';
 
 export default function Cart() {
   const [cartItems, setCartItems] = useState([]);

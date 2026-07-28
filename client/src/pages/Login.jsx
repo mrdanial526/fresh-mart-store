@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext'; // Import useAuth
+import { useAuth } from '../context/AuthContext';
+import API_BASE_URL from '../apiConfig';
 import styles from '../styles/Auth.module.css';
 
 export default function Login() {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
-  const { login } = useAuth(); // Destructure login from context
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -20,16 +21,22 @@ export default function Login() {
       return;
     }
     try {
-      const res = await fetch('/api/auth/login', {
+      const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       });
+
+      const contentType = res.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        throw new Error('Server returned an invalid response. Check deployment routing.');
+      }
+
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'Login failed');
       
-      login(data.token); // This updates global auth state instantly
-      navigate('/'); // Redirects to the home page
+      login(data.token);
+      navigate('/');
     } catch (err) {
       setError(err.message);
     }

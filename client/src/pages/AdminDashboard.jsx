@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import API_BASE_URL from '../apiConfig';
 
 export default function AdminDashboard() {
   const [products, setProducts] = useState([]);
@@ -24,14 +25,14 @@ export default function AdminDashboard() {
   const anyModalOpen = deleteModalOpen || editModalOpen;
 
   const fetchProducts = () => {
-    fetch('/api/products')
+    fetch(`${API_BASE_URL}/api/products`)
       .then((res) => res.json())
       .then((data) => setProducts(data))
       .catch((err) => console.error('Error fetching products:', err));
   };
 
   const fetchOrders = () => {
-    fetch('/api/orders')
+    fetch(`${API_BASE_URL}/api/orders`)
       .then((res) => res.json())
       .then((data) => setOrders(data))
       .catch((err) => console.error('Error fetching orders:', err));
@@ -46,7 +47,7 @@ export default function AdminDashboard() {
     e.preventDefault();
     if (anyModalOpen) return;
 
-    fetch('/api/products', {
+    fetch(`${API_BASE_URL}/api/products`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, description, price: Number(price), category, image, countInStock: Number(countInStock) })
@@ -73,7 +74,7 @@ export default function AdminDashboard() {
   const handleDeleteProduct = () => {
     if (!productToDelete) return;
 
-    fetch(`/api/products/${productToDelete}`, { method: 'DELETE' })
+    fetch(`${API_BASE_URL}/api/products/${productToDelete}`, { method: 'DELETE' })
       .then((res) => {
         if (res.ok) {
           setMessage('Product deleted successfully!');
@@ -119,7 +120,7 @@ export default function AdminDashboard() {
     if (!editProduct) return;
     setSavingEdit(true);
 
-    fetch(`/api/products/${editProduct.id}`, {
+    fetch(`${API_BASE_URL}/api/products/${editProduct.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -153,7 +154,7 @@ export default function AdminDashboard() {
   };
 
   const handleStatusChange = (orderId, newStatus) => {
-    fetch(`/api/orders/${orderId}/status`, {
+    fetch(`${API_BASE_URL}/api/orders/${orderId}/status`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: newStatus })

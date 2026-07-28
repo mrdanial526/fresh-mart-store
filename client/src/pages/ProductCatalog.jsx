@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import API_BASE_URL from '../apiConfig';
 
 export default function ProductCatalog() {
   const [products, setProducts] = useState([]);
@@ -11,10 +12,23 @@ export default function ProductCatalog() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('/api/products')
-      .then((res) => res.json())
-      .then((data) => setProducts(data))
-      .catch((err) => console.error('Error fetching products:', err));
+    const fetchProducts = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/products`);
+        const contentType = res.headers.get("content-type");
+
+        if (res.ok && contentType && contentType.includes("application/json")) {
+          const data = await res.json();
+          setProducts(data);
+        } else {
+          console.error('Server did not return JSON for products.');
+        }
+      } catch (err) {
+        console.error('Error fetching products:', err);
+      }
+    };
+
+    fetchProducts();
   }, []);
 
   // Helper to determine the user-specific cart storage key
